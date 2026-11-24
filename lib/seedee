@@ -61,14 +61,14 @@ function cdselect
   typeset dir nb="$1" filter="$2" t l
   [ "$_cdpr" ] && {
     [ "$_cdpr" = 1 ] && [ "$BASH" ] && _sel_tput el >&2
-    printf "\n" >&2
+    [ "$_cdpr" != 1 ] && printf "\n" >&2
   }
   selector -q -P "$CDPOWERLINE" -m "$nb" -k _cd_keys -p cd -o dirnames -F "$filter" -f -
   printf '\r' >&2;_sel_tput el >&2
   dir="$selected"
   unset selected
   [ "$_cdpr" ] && {
-    _sel_tput cuu1 >&2
+    [ "$_cdpr" != 1 ] && _sel_tput cuu1 >&2
     # bash 3/4 bug repeating prompt/command
     [ "$_cdpr" = 1 ] && [[ "$BASH_VERSION" = @(3.*|4.[0-3].*) ]] && {
       t=${PS1//$'\n'/}
@@ -144,20 +144,32 @@ function cdhist {
   }
 }
 [ "$BASH" ] && {
+  function _cd_accept {
+    local action=redraw-current-line mode
+    [ "$READLINE_LINE" ] && action=accept-line
+    for mode in vi-insert vi-command emacs-standard; do
+      bind -m "$mode" '"\C-x\C-]": '"$action"
+    done
+  }
+
   function _cdhistb {
     READLINE_LINE="$(_cdpr=1 cdhist $(eval printf '"%s "' "${READLINE_LINE}"))"
+    _cd_accept
   }
 
   function _cddotb {
     READLINE_LINE="$(_cdpr=1 cdhist + $(eval printf '"%s "' "${READLINE_LINE}"))"
+    _cd_accept
   }
 
   function _cdlb {
     READLINE_LINE="$(_cdpr=1 cdhist -l $(eval printf '"%s "' "${READLINE_LINE}"))"
+    _cd_accept
   }
 
   function _cdlastb {
     READLINE_LINE="$(_cdpr=1 cdhist - $(eval printf '"%s "' "${READLINE_LINE}"))"
+    _cd_accept
   }
 
   function _cdupb {
@@ -196,7 +208,7 @@ _cdhist_cd() {
   }
   IFS='[;' read -rsd R -p $'\e[6n' _ row col
   [ ${#COMPREPLY[@]} = 0 ] && {
-    printf '\nNot found !\r'
+    printf '\n\e[38;2;234;105;98mNot found!\e[0m\r'
     sleep 0.2
     _sel_tput el >&2
     _sel_tput cuu1 >&2
@@ -342,27 +354,27 @@ function _cdbind {
     bind -m vi-command -x '"\C-xa": _cdhistb'
     bind -m emacs-standard -x '"\C-xa": _cdhistb'
     for k in $CDHISTBIND ;do
-      bind -m vi-insert '"'"$k"'": "\C-xa\015"'
-      bind -m vi-command '"'"$k"'": "\C-xa\015"'
-      bind -m emacs-standard '"'"$k"'": "\C-xa\015"'
+      bind -m vi-insert '"'"$k"'": "\C-xa\C-x\C-]"'
+      bind -m vi-command '"'"$k"'": "\C-xa\C-x\C-]"'
+      bind -m emacs-standard '"'"$k"'": "\C-xa\C-x\C-]"'
     done
 
     bind -m vi-insert -x '"\C-xb": _cdlastb'
     bind -m vi-command -x '"\C-xb": _cdlastb'
     bind -m emacs-standard -x '"\C-xb": _cdlastb'
     for k in $CDLASTBIND ;do
-      bind -m vi-insert '"'"$k"'": "\C-xb\015"'
-      bind -m vi-command '"'"$k"'": "\C-xb\015"'
-      bind -m emacs-standard '"'"$k"'": "\C-xb\015"'
+      bind -m vi-insert '"'"$k"'": "\C-xb\C-x\C-]"'
+      bind -m vi-command '"'"$k"'": "\C-xb\C-x\C-]"'
+      bind -m emacs-standard '"'"$k"'": "\C-xb\C-x\C-]"'
     done
 
     bind -m vi-insert -x '"\C-xc": _cddotb'
     bind -m vi-command -x '"\C-xc": _cddotb'
     bind -m emacs-standard -x '"\C-xc": _cddotb'
     for k in $CDDOTBIND ;do
-      bind -m vi-insert '"'"$k"'": "\C-xc\015"'
-      bind -m vi-command '"'"$k"'": "\C-xc\015"'
-      bind -m emacs-standard '"'"$k"'": "\C-xc\015"'
+      bind -m vi-insert '"'"$k"'": "\C-xc\C-x\C-]"'
+      bind -m vi-command '"'"$k"'": "\C-xc\C-x\C-]"'
+      bind -m emacs-standard '"'"$k"'": "\C-xc\C-x\C-]"'
     done
 
     for k in $CDUPBIND ;do
@@ -375,9 +387,9 @@ function _cdbind {
     bind -m vi-command -x '"\C-xd": _cddlb'
     bind -m emacs-standard -x '"\C-xd": _cdlb'
     for k in $CDLBIND ;do
-      bind -m vi-insert '"'"$k"'": "\C-xd\015"'
-      bind -m vi-command '"'"$k"'": "\C-xd\015"'
-      bind -m emacs-standard '"'"$k"'": "\C-xd\015"'
+      bind -m vi-insert '"'"$k"'": "\C-xd\C-x\C-]"'
+      bind -m vi-command '"'"$k"'": "\C-xd\C-x\C-]"'
+      bind -m emacs-standard '"'"$k"'": "\C-xd\C-x\C-]"'
     done
     return
   }

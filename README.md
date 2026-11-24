@@ -86,6 +86,7 @@ putting on command line : `work` and hitting <kbd>Shift</kbd><kbd>▲</kbd> will
 |<kbd>Enter</kbd>/<kbd>Tab</kbd> | go to directory                                       |
 
 * filter pattern can be applied entering text
+* shortcut menus draw on the current command line; Esc returns without submitting an empty command
 * selection can be done entering item number
 
 
@@ -124,4 +125,6 @@ $ cdl <pat>...
 |`CDLBIND`    | bind key to cdlocate                                              |
 |`CDUPIND`    | bind key to cd ..                                                 |
 |`CDLASTBIND` | bind key to cdhist last dir matching text                         |
+
+The selector defaults to colors from the local Neovim palette. Set `SELECTOR_COL_*` variables before loading seedee to override them; values are semicolon-separated RGB components.
 

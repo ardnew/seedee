@@ -10,16 +10,16 @@
 : "${SELECTOR_MISS_ICON:=}"
 : "${SELECTOR_CASEI:=0}"
 : "${SELECTOR_POWERLINE:=y}"
-: "${SELECTOR_COL_PROMPT:=30;90;180}" # blue
-: "${SELECTOR_COL_TEXT:=255;255;255}" # white
-: "${SELECTOR_COL_TOTAL:=32;64;64}"   # darkggrey
-: "${SELECTOR_COL_NUM:=36;114;67}"    # green
-: "${SELECTOR_COL_ARROW:=41;98;114}"  # cyan
-: "${SELECTOR_COL_ITEM:=118;141;255}" # light blue
-: "${SELECTOR_COL_SELECTED:=42;221;244}" # light cyan
-: "${SELECTOR_COL_COMMENT:=168;110;2}" #
-: "${SELECTOR_COL_COMSEL:=222;203;49}" #
-: "${SELECTOR_COL_CASEI:=255;255;100}" # IGNORECASE
+: "${SELECTOR_COL_PROMPT:=62;68;81}" # Neovim active background
+: "${SELECTOR_COL_TEXT:=216;216;210}" # foreground
+: "${SELECTOR_COL_TOTAL:=40;44;52}" # background
+: "${SELECTOR_COL_NUM:=137;180;130}" # green
+: "${SELECTOR_COL_ARROW:=62;68;81}" # active background
+: "${SELECTOR_COL_ITEM:=171;178;191}" # inactive foreground
+: "${SELECTOR_COL_SELECTED:=236;239;244}" # active foreground
+: "${SELECTOR_COL_COMMENT:=125;174;163}" # blue
+: "${SELECTOR_COL_COMSEL:=216;166;87}" # yellow
+: "${SELECTOR_COL_CASEI:=216;166;87}" # yellow
 
 [ "$SELECTOR_USE_TPUT" ] && alias _sel_tput=tput
 
@@ -101,7 +101,7 @@ _sel_tty_init() {
   _sel_init_filter
   disp_item_sel="\n$bg${SELECTOR_COL_ARROW}m$wfg %*s $fg${SELECTOR_COL_ARROW}m\e[49m$pl$fg${SELECTOR_COL_SELECTED}m%-*s$fg${SELECTOR_COL_COMSEL}m %s\e[0m"
   disp_item="\n$fg${SELECTOR_COL_NUM}m %*s  $fg${SELECTOR_COL_ITEM}m%-*s$fg${SELECTOR_COL_COMMENT}m %s\e[0m"
-  disp_form="$bg${SELECTOR_COL_PROMPT}m$wfg %s $fg${SELECTOR_COL_PROMPT}m$bg${SELECTOR_COL_TOTAL}m$pl$wfg %s$fg${SELECTOR_COL_TOTAL}m\e[49m$pl\e[0m %s"
+  disp_form="$bg${SELECTOR_COL_TOTAL}m$wfg %s $fg${SELECTOR_COL_TOTAL}m$bg${SELECTOR_COL_PROMPT}m$pl$wfg %s$fg${SELECTOR_COL_PROMPT}m\e[49m$pl\e[0m %s"
   ((SELECTOR_CASEI)) && disp_form="${disp_form//$SELECTOR_COL_TEXT/$SELECTOR_COL_CASEI}"
   tty_init=1
 }
@@ -146,7 +146,7 @@ _sel_menuprompt()
   printf "\r"
   [ "$stream" ] && nbi='...'
   ((SEL_SMAM)) && w=1000 || { pr="  $p  $_nsel/$nbi  "; ((w=COLUMNS-${#pr})); }
-  printf "$disp_form" "$p" "$_nsel/$nbi" "${filt:0:$w}"
+  printf "$disp_form" "$_nsel/$nbi" "$p" "${filt:0:$w}"
   _sel_tput el
   printf "\r"
 }
@@ -527,7 +527,7 @@ _sel_domenu()
         [ "$_autofilter" = y ] && {
           _sel_items_filter "$filter"
           ((nbitems)) || {
-            printf "Not found !"
+            printf '\e[38;2;234;105;98mNot found!\e[0m'
             _sel_tput el
             read -rs"$_sel_rdn"1 -t 0.5 key 2>/dev/null
             filter="${filter%?}"
